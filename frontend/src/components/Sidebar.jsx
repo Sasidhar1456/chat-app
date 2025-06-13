@@ -8,7 +8,7 @@ import { userDummyData } from '../assets/assets'
 
 const Sidebar = () => {
 
-    const {getUsers, users, selectedUser, setSelectedUser, unseenMessages, setUnseenMessgaes} = useContext(ChatContext);
+    const {getUsers, users, selectedUser, setSelectedUser, unseenMessages, setUnseenMessages} = useContext(ChatContext);
 
 
     const {logout, onlineUsers} = useContext(AuthContext)
@@ -48,15 +48,17 @@ const Sidebar = () => {
 
             <div className='bg-[#282142] rounded-full flex items-center gap-2 py-3 px-4 mt-5'>
                 <img src={assets.search_icon} alt="Search" className='w-3' />
-                <input onChange={() => setInput(e.target.value)} type="text" className='bg-transparent border-none outline-none
+                <input onChange={(e) => setInput(e.target.value)} type="text" className='bg-transparent border-none outline-none
                 text-white text-xs placeholder-[#c8c8c8] flex-1' 
                 placeholder='Search User...' />
             </div>
 
             <div className='flex flex-col'>
 
-                {userDummyData.map((user, index) => (
-                    <div onClick={() => {setSelectedUser(user)}}
+                {filteredUser.map((user, index) => (
+                    <div onClick={() => {setSelectedUser(user); setUnseenMessages(prev => 
+                    ({...prev, [user._id]:0  }) 
+                    )}}
                     key={index}
                     className={`relative flex items-center gap-2 p-2 pl-4 rounded
                     cursor-pointer max-sm:text-sm ${selectedUser?._id === user._id && 
