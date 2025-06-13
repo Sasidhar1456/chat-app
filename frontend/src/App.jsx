@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
-import bgImage from './assets/bgImage.svg';
+import bgImage from '/bgImage.svg';
 import {Toaster} from "react-hot-toast"
 import { AuthContext } from '../context/AuthContext'
 
