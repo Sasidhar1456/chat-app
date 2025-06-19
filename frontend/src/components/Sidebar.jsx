@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import assets from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
@@ -17,6 +17,8 @@ const Sidebar = () => {
   const { logout, onlineUsers } = useContext(AuthContext)
 
   const [input, setInput] = useState('')
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef(null)
   const navigate = useNavigate()
 
   const filteredUser = input
@@ -29,39 +31,62 @@ const Sidebar = () => {
     getUsers()
   }, [onlineUsers])
 
+  // Close menu when clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div
       className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll 
       text-white w-full sm:w-auto ${selectedUser ? 'max-md:hidden' : ''}`}
     >
       <div className='pb-5'>
-        <div className='flex justify-between items-center '>
+        <div className='flex justify-between items-center'>
           <img src={assets.logo} alt='logo' className='max-w-40' />
-          <div className='relative py-2 group'>
+
+          <div className='relative py-2' ref={menuRef}>
             <img
               src={assets.menu_icon}
               alt='Menu'
               className='max-h-5 cursor-pointer'
+              onClick={() => setIsMenuOpen((prev) => !prev)}
             />
-            <div
-              className='absolute top-full right-0 z-20 w-32 p-5 rounded-md 
-              bg-[#282142] border border-gray-600 text-gray-100 hidden
-              group-hover:block'
-            >
-              <p
-                onClick={() => navigate('/profile')}
-                className='cursor-pointer text-sm'
+            {isMenuOpen && (
+              <div
+                className='absolute top-full right-0 z-20 w-32 p-5 rounded-md 
+                bg-[#282142] border border-gray-600 text-gray-100'
               >
-                Edit Profile
-              </p>
-              <hr className='my-2 border-t border-gray-500' />
-              <p
-                onClick={() => logout()}
-                className='cursor-pointer text-sm'
-              >
-                Logout
-              </p>
-            </div>
+                <p
+                  onClick={() => {
+                    navigate('/profile')
+                    setIsMenuOpen(false)
+                  }}
+                  className='cursor-pointer text-sm'
+                >
+                  Edit Profile
+                </p>
+                <hr className='my-2 border-t border-gray-500' />
+                <p
+                  onClick={() => {
+                    logout()
+                    setIsMenuOpen(false)
+                  }}
+                  className='cursor-pointer text-sm'
+                >
+                  Logout
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -97,7 +122,6 @@ const Sidebar = () => {
                 alt=''
                 className='w-[35px] aspect-[1/1] rounded-full'
               />
-
               <div className='flex flex-col leading-5'>
                 <p>{user.fullName}</p>
                 {onlineUsers.includes(user._id) ? (
