@@ -9,20 +9,26 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState(""); 
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
-  const {login} = useContext(AuthContext) 
+  const { login } = useContext(AuthContext);
 
   const onSubmitHandler = (event) => {
-
     event.preventDefault();
 
-    if(currState === 'Sign up' && !isDataSubmitted){
-
+    if (currState === 'Sign up' && !isDataSubmitted) {
+      if (!agreed) return; // prevent submission without agreement
       setIsDataSubmitted(true);
       return;
     }
-    login(currState === "Sign up" ? 'signup' : 'login', {fullName,email,password,bio})
-  }
+
+    login(currState === "Sign up" ? 'signup' : 'login', {
+      fullName,
+      email,
+      password,
+      bio,
+    });
+  };
 
   return (
     <div className='min-h-screen bg-cover bg-center flex items-center
@@ -36,16 +42,14 @@ const LoginPage = () => {
       flex-col gap-6 rounded-lg shadow-lg'>
         <h2 className='font-medium text-2xl flex justify-between items-center'>
           {currState}
-          {isDataSubmitted && 
+          {isDataSubmitted && (
             <img
-            onClick={() => setIsDataSubmitted(false)}
-            src={assets.arrow_icon}
-            alt=""
-            className='w-5 cursor-pointer'
-            
-          />
-          }
-          
+              onClick={() => setIsDataSubmitted(false)}
+              src={assets.arrow_icon}
+              alt="Go Back"
+              className='w-5 cursor-pointer'
+            />
+          )}
         </h2>
 
         {currState === "Sign up" && !isDataSubmitted && (
@@ -86,45 +90,59 @@ const LoginPage = () => {
             value={bio}
             rows={4}
             className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder='provide a short bio...'
+            placeholder='Provide a short bio...'
             required
           ></textarea>
         )}
 
-        <div className='flex items-center gap-2 text-sm text-gray-500'>
-          <input type="checkbox" />
-          <p>Agree to the terms of use & privacy policy.</p>
-        </div>
+        {/* Show checkbox only during Sign up & before final submit */}
+        {currState === "Sign up" && !isDataSubmitted && (
+          <div className='flex items-center gap-2 text-sm text-gray-300'>
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="accent-indigo-500"
+              required
+            />
+            <p>I agree to the terms of use & privacy policy.</p>
+          </div>
+        )}
 
         <button
-
           type='submit'
-          className='py-3 bg-gradient-to-r from-purple-400'
-          
+          disabled={currState === "Sign up" && !agreed && !isDataSubmitted}
+          className={`py-3 rounded-md transition-all duration-300 ${
+            currState === "Sign up" && !agreed && !isDataSubmitted
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-purple-400 to-indigo-500 hover:from-purple-500"
+          }`}
         >
           {currState === "Sign up" ? "Create Account" : "Login Now"}
         </button>
 
         <div className='flex flex-col gap-2'>
           {currState === "Sign up" ? (
-            <p className='text-sm text-gray-600'>
+            <p className='text-sm text-gray-300'>
               Already have an account? <span
-                className='font-medium text-violet-500 cursor-pointer'
+                className='font-medium text-violet-400 cursor-pointer'
                 onClick={() => {
                   setCurrState("Login");
                   setIsDataSubmitted(false);
+                  setAgreed(false);
                 }}
               >
                 Login here
               </span>
             </p>
           ) : (
-            <p className='text-sm text-gray-600'>
+            <p className='text-sm text-gray-300'>
               Create an account <span
-                className='font-medium text-violet-500 cursor-pointer'
+                className='font-medium text-violet-400 cursor-pointer'
                 onClick={() => {
                   setCurrState("Sign up");
                   setIsDataSubmitted(false);
+                  setAgreed(false);
                 }}
               >
                 Click here
@@ -132,7 +150,6 @@ const LoginPage = () => {
             </p>
           )}
         </div>
-
       </form>
     </div>
   );
